@@ -1,0 +1,171 @@
+﻿<Window x:Class="DependentBoxingBug.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dependentBoxingBug="clr-namespace:DependentBoxingBug"
+        Title="MainWindow"
+        WindowState="Maximized">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBox Grid.Row="0"
+                 Margin="5"
+                 Text="{Binding Filter,
+                                UpdateSourceTrigger=PropertyChanged}" />
+
+        <DataGrid Grid.Row="1"
+                  Margin="5,0,5,5"
+                  CanUserResizeColumns="True"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  HorizontalScrollBarVisibility="Disabled"
+                  AutoGenerateColumns="False"
+                  ItemsSource="{Binding ListCollectionView}"
+                  Padding="5,0,5,0">
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridRow}">
+                                <Border x:Name="DGR_Border"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        SnapsToDevicePixels="True">
+                                    <DataGridCellsPresenter ItemsPanel="{TemplateBinding ItemsPanel}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                <ControlTemplate x:Key="CellMiddleTemplate" TargetType="{x:Type DataGridCell}">
+                    <Grid x:Name="PART_Bd"
+                          Height="{Binding CellHeight,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}"
+                          Margin="-1,0,0,5"
+                          Background="{Binding ElementBackground,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}"
+                          IsHitTestVisible="True">
+                        <ContentPresenter Margin="2,0"
+                                          HorizontalAlignment="{Binding CellHorizontalAlignment,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}"
+                                          VerticalAlignment="{Binding CellVerticalAlignment,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}" />
+
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}}" Value="True">
+                            <Setter TargetName="PART_Bd" Property="Background" Value="{Binding MouseOverBorderBackground, Source={x:Static dependentBoxingBug:CommonResources.Instance}, Mode=OneWay}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}}" Value="True">
+                            <Setter TargetName="PART_Bd" Property="Background" Value="{Binding SelectedBorderBackground, Source={x:Static dependentBoxingBug:CommonResources.Instance}, Mode=OneWay}" />
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+
+                <Style x:Key="CellMiddle" TargetType="{x:Type DataGridCell}">
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                    <Setter Property="Background" Value="{Binding CellBackground,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}" />
+                    <Setter Property="BorderBrush" Value="{Binding CellBorder,
+                                               Mode=OneWay,
+                                               Source={x:Static dependentBoxingBug:CommonResources.Instance}}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="TextBlock.FontSize" Value="11" />
+                    <Setter Property="TextBlock.FontFamily" Value="Arial" />
+                    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+
+                    <Setter Property="Template" Value="{StaticResource CellMiddleTemplate}" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{x:Null}" />
+                            <Setter Property="BorderBrush" Value="{x:Null}" />
+                            <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}, FallbackValue={x:Null}}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource {x:Static DataGrid.FocusBorderBrushKey}}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property1}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property1"
+                                    ToolTipService.ToolTip="Property1" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property2}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property2"
+                                    ToolTipService.ToolTip="Property2" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property3}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property3"
+                                    ToolTipService.ToolTip="Property3" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property4}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property4"
+                                    ToolTipService.ToolTip="Property4" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property5}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property5"
+                                    ToolTipService.ToolTip="Property5" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property6}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property6"
+                                    ToolTipService.ToolTip="Property6" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property7}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property7"
+                                    ToolTipService.ToolTip="Property7" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property8}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property8"
+                                    ToolTipService.ToolTip="Property8" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property9}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property9"
+                                    ToolTipService.ToolTip="Property9" />
+
+                <DataGridTextColumn Width="*"
+                                    Binding="{Binding Property10}"
+                                    CellStyle="{StaticResource CellMiddle}"
+                                    ElementStyle="{StaticResource {x:Type TextBlock}}"
+                                    Header="Property10"
+                                    ToolTipService.ToolTip="Property10" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
